@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { API } from 'aws-amplify';
+import { get } from 'aws-amplify/api';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 import { Alert, Authenticator, Divider, Menu, MenuItem, useAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 
@@ -15,18 +16,28 @@ function App() {
 
   useEffect(() => {
     if (authStatus === 'authenticated' && user) {
-      setEmail(user.attributes?.email ?? '');
+      setUserInfo();
       retrieveItems();
     }
   }, [authStatus, user]);
 
+  async function setUserInfo() {
+    const attributes = await fetchUserAttributes();
+    setEmail(attributes.email ?? '');
+  }
+
   async function retrieveItems() {
     try {
-      const response = (await API.get('restApi', 'items', {})) as Item[];
+      const restOperation = get({
+        apiName: 'restApi',
+        path: 'items',
+      });
+      const response = await restOperation.response;
       setDate(new Date(Date.now()));
-      setItems(response);
+      const json = await response.body.json();
+      setItems(json as Item[]);
     } catch (error) {
-      console.error(JSON.stringify(error));
+      console.error(error);
       if (error instanceof Error) {
         setErrorMessage(error.message);
       }
@@ -35,7 +46,7 @@ function App() {
 
   function MenuComponent(): JSX.Element {
     return (
-      <Menu menuAlign="end">
+      <Menu menuAlign="end" className="header-menu">
         <div className="summary">
           <div>{email}</div>
         </div>

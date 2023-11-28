@@ -7,19 +7,19 @@ import './index.css';
 
 Amplify.configure({
   Auth: {
-    identityPoolId: '',
-    region: 'ap-northeast-1',
-    userPoolId: '',
-    userPoolWebClientId: '',
+    Cognito: {
+      identityPoolId: '',
+      userPoolId: '',
+      userPoolClientId: '',
+    },
   },
   API: {
-    endpoints: [
-      {
-        name: 'restApi',
+    REST: {
+      restApi: {
         endpoint: '',
         region: 'ap-northeast-1',
       },
-    ],
+    },
   },
 });
 
